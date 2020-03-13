@@ -25,6 +25,7 @@ import net.corda.testing.node.internal.cordappWithFixups
 import net.corda.testing.node.internal.cordappWithPackages
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.BeforeClass
+import org.junit.ClassRule
 import org.junit.Test
 import kotlin.test.assertFailsWith
 
@@ -33,14 +34,24 @@ class ContractWithMissingCustomSerializerTest {
     companion object {
         const val BOBBINS = 5000L
 
+        @JvmField
         val user = User("u", "p", setOf(Permissions.all()))
+
+        @JvmField
         val flowCorDapp = cordappWithPackages("net.corda.flows.serialization.missing").signed()
+
+        @JvmField
         val contractCorDapp = cordappWithPackages("net.corda.contracts.serialization.missing").signed()
+
+        @ClassRule
+        @JvmField
+        val security = OutOfProcessSecurityRule()
 
         fun driverParameters(cordapps: List<TestCordapp>): DriverParameters {
             return DriverParameters(
                 portAllocation = incrementalPortAllocation(),
                 startNodesInProcess = false,
+                systemProperties = security.systemProperties,
                 notarySpecs = listOf(NotarySpec(DUMMY_NOTARY_NAME, validating = true)),
                 cordappsForAllNodes = cordapps
             )

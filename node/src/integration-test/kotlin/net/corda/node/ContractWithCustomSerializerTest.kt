@@ -17,6 +17,7 @@ import net.corda.testing.node.User
 import net.corda.testing.node.internal.cordappWithPackages
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.BeforeClass
+import org.junit.ClassRule
 import org.junit.Test
 import kotlin.test.assertFailsWith
 
@@ -24,6 +25,10 @@ import kotlin.test.assertFailsWith
 class ContractWithCustomSerializerTest {
     companion object {
         const val CURRANTS = 5000L
+
+        @ClassRule
+        @JvmField
+        val security = OutOfProcessSecurityRule()
 
         @BeforeClass
         @JvmStatic
@@ -38,6 +43,7 @@ class ContractWithCustomSerializerTest {
         driver(DriverParameters(
             portAllocation = incrementalPortAllocation(),
             startNodesInProcess = false,
+            systemProperties = security.systemProperties,
             notarySpecs = listOf(NotarySpec(DUMMY_NOTARY_NAME, validating = true)),
             cordappsForAllNodes = listOf(
                 cordappWithPackages("net.corda.flows.serialization.custom").signed(),
