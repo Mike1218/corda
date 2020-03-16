@@ -4,6 +4,7 @@ import net.corda.core.context.InvocationContext
 import net.corda.core.context.InvocationOrigin
 import net.corda.core.flows.StateMachineRunId
 import net.corda.core.internal.PLATFORM_VERSION
+import net.corda.core.internal.VisibleForTesting
 import net.corda.core.internal.uncheckedCast
 import net.corda.core.serialization.SerializationDefaults
 import net.corda.core.serialization.SerializedBytes
@@ -304,7 +305,8 @@ class DBCheckpointStorage(private val checkpointPerformanceRecorder: CheckpointP
         }
     }
 
-    private fun getDBCheckpoint(id: StateMachineRunId): DBFlowCheckpoint? {
+    @VisibleForTesting
+    internal fun getDBCheckpoint(id: StateMachineRunId): DBFlowCheckpoint? {
         return currentDBSession().find(DBFlowCheckpoint::class.java, id.uuid.toString())
     }
 
