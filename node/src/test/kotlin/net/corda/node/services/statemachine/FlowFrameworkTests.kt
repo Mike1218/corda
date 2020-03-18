@@ -100,7 +100,7 @@ class FlowFrameworkTests {
     private val dbCheckpointStorage = DBCheckpointStorage(object : CheckpointPerformanceRecorder {
         override fun record(
                 serializedCheckpointState: SerializedBytes<CheckpointState>,
-                serializedFlowState: SerializedBytes<FlowState>
+                serializedFlowState: SerializedBytes<FlowState>?
         ) {
             // do nothing
         }

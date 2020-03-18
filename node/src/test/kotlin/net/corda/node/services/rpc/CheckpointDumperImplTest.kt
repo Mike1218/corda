@@ -146,7 +146,7 @@ class CheckpointDumperImplTest {
             checkpointStorage = DBCheckpointStorage(object : CheckpointPerformanceRecorder {
                 override fun record(
                     serializedCheckpointState: SerializedBytes<CheckpointState>,
-                    serializedFlowState: SerializedBytes<FlowState>
+                    serializedFlowState: SerializedBytes<FlowState>?
                 ) {
                     // do nothing
                 }
@@ -166,6 +166,6 @@ class CheckpointDumperImplTest {
     }
 
     private fun serializeFlowState(checkpoint: Checkpoint): SerializedBytes<FlowState> {
-        return checkpoint.flowState.checkpointSerialize(context = CheckpointSerializationDefaults.CHECKPOINT_CONTEXT)
+        return checkpoint.flowState!!.checkpointSerialize(context = CheckpointSerializationDefaults.CHECKPOINT_CONTEXT)
     }
 }
