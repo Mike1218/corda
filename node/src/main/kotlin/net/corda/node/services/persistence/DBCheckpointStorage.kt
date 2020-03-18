@@ -20,6 +20,7 @@ import net.corda.node.services.statemachine.SubFlowVersion
 import net.corda.nodeapi.internal.persistence.NODE_DATABASE_PREFIX
 import net.corda.nodeapi.internal.persistence.currentDBSession
 import org.apache.commons.lang3.ArrayUtils.EMPTY_BYTE_ARRAY
+import org.apache.commons.lang3.exception.ExceptionUtils
 import org.hibernate.annotations.Type
 import java.sql.Connection
 import java.sql.SQLException
@@ -51,6 +52,8 @@ class DBCheckpointStorage(private val checkpointPerformanceRecorder: CheckpointP
         private const val MAX_FLOW_NAME_LENGTH = 128
 
         private val NOT_RUNNABLE_CHECKPOINTS = listOf(FlowStatus.COMPLETED, FlowStatus.FAILED, FlowStatus.KILLED)
+
+        private val MAX_LENGTH_VARCHAR = 4000
 
         /**
          * This needs to run before Hibernate is initialised.
@@ -169,9 +172,12 @@ class DBCheckpointStorage(private val checkpointPerformanceRecorder: CheckpointP
 
         @Column(name = "type", nullable = false)
         var type: String,
-                                        // TODO new column for stacktrace -> to string -> truncate
+
         @Column(name = "exception_message")
         var message: String? = null,
+
+        @Column(name = "stack_trace", nullable = false)
+        var stackTrace: String,
 
         @Type(type = "corda-blob")
         @Column(name = "exception_value")
@@ -472,6 +478,7 @@ class DBCheckpointStorage(private val checkpointPerformanceRecorder: CheckpointP
             DBFlowException(
                 type = it::class.java.name,
                 message = it.message,
+                stackTrace = it.stackTraceToString(),
                 value = null, // TODO to be populated in Corda 4.6
                 persistedInstant = now
             )
@@ -513,5 +520,13 @@ class DBCheckpointStorage(private val checkpointPerformanceRecorder: CheckpointP
 
     private fun <T : Any> T.storageSerialize(): SerializedBytes<T> {
         return serialize(context = SerializationDefaults.STORAGE_CONTEXT)
+    }
+
+    private fun Throwable.stackTraceToString(): String {
+        val stackTraceStr = ExceptionUtils.getStackTrace(this)
+        return if (stackTraceStr.length > MAX_LENGTH_VARCHAR) {
+            stackTraceStr.substring(0, MAX_LENGTH_VARCHAR)
+        } else
+            stackTraceStr
     }
 }
