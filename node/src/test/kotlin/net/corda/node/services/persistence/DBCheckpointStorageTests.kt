@@ -38,7 +38,6 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
-import java.time.Instant
 import java.util.ArrayList
 import kotlin.streams.toList
 import kotlin.test.assertEquals
@@ -566,7 +565,6 @@ class DBCheckpointStorageTests {
         val (id, checkpoint) = newCheckpoint()
         database.transaction {
             val serializedFlowState = checkpoint.serializeFlowState()
-            createMetadataRecord(checkpoint)
             checkpointStorage.addCheckpoint(id, checkpoint, serializedFlowState)
             checkpointStorage.updateCheckpoint(id, checkpoint.addError(smallerStackTraceException), serializedFlowState)
         }
@@ -604,7 +602,6 @@ class DBCheckpointStorageTests {
         val (id, checkpoint) = newCheckpoint()
         database.transaction {
             val serializedFlowState = checkpoint.serializeFlowState()
-            createMetadataRecord(checkpoint)
             checkpointStorage.addCheckpoint(id, checkpoint, serializedFlowState)
             checkpointStorage.updateCheckpoint(id, checkpoint.addError(biggerStackTraceException), serializedFlowState)
         }
